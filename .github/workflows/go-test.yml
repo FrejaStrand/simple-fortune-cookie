@@ -64,11 +64,10 @@ jobs:
 
   k8s-deploy:
       name: Deploy
+      needs: [Docker_image]
       runs-on: ubuntu-22.04
       steps:
         - uses: actions/checkout@v3
         - uses: actions-hub/kubectl@master
-          env:
-            KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
           with:
             args: get pods
