@@ -5,7 +5,10 @@ on:
     branches: [main]
   push:
     branches: [emil,freja,gustav]
-    
+env:
+  docker_username: frejastrand
+  docker_password: ${{ secrets.GITHUB_TOKEN }}
+  GIT_COMMIT: ${{ github.sha }}
 jobs:
   test:
     runs-on: ubuntu-22.04
@@ -27,3 +30,34 @@ jobs:
       - name: Run test finally
         working-directory: frontend
         run: go test
+
+  store_artifact:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Upload code
+        uses: actions/upload-artifact@v3
+        with:
+          name: code
+          path: . 
+  
+  Docker_image: 
+    runs-on: ubuntu-22.04
+    needs: [store_artifact]
+    permissions:
+      packages: write
+    steps:
+      - name: download code
+        uses: actions/download-artifact@v3
+        with:
+          name: code
+          path: .
+      - name: build frontend docker
+        run: chmod +x ./build-frontend-docker.sh && ./build-frontend-docker.sh
+      - name: build backend docker
+        run: chmod +x ./build-backend-docker.sh && ./build-backend-docker.sh
+      - name: push frontend docker
+        run: chmod +x ./push-frontend-docker.sh && ./push-frontend-docker.sh
+      - name: push backend docker
+        run: chmod +x ./push-backend-docker.sh && ./push-backend-docker.sh
