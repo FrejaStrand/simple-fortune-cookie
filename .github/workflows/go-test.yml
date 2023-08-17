@@ -71,4 +71,4 @@ jobs:
         run: echo "${{ secrets.KUBECONFIG }}" | base64 -d > kubeconfig
       - working-directory: Kubernetes/
         name: Do some k8s magic
-        run: kubectl --kubeconfig kubeconfig kubectl apply -f .
+        run: kubectl --kubeconfig kubeconfig apply -f .
