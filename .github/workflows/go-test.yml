@@ -6,7 +6,7 @@ on:
   push:
     branches: [emil,freja,gustav]
 env:
-  docker_username: ${{ github.actor }}
+  docker_username: frejastrand
   docker_password: ${{ secrets.GITHUB_TOKEN }}
   GIT_COMMIT: ${{ github.sha }}
 jobs:
