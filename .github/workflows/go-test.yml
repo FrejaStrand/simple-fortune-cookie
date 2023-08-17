@@ -3,8 +3,6 @@ name: Go Test
 on:
   pull_request:
     branches: [main]
-  push:
-    branches: [emil,freja,gustav]
 env:
   docker_username: frejastrand
   docker_password: ${{ secrets.GITHUB_TOKEN }}
