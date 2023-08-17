@@ -10,7 +10,7 @@ env:
   docker_password: ${{ secrets.GITHUB_TOKEN }}
   GIT_COMMIT: ${{ github.sha }}
 jobs:
-  test:
+  Test:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout branch
@@ -31,7 +31,7 @@ jobs:
         working-directory: frontend
         run: go test
 
-  store_artifact:
+  Store_artifact:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
@@ -44,7 +44,7 @@ jobs:
   
   Docker_image: 
     runs-on: ubuntu-22.04
-    needs: [store_artifact]
+    needs: [Store_artifact]
     permissions:
       packages: write
     steps:
