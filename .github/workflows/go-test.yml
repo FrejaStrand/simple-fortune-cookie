@@ -62,7 +62,10 @@ jobs:
   
   Run-k8s-cluser:
     runs-on: ubuntu-22.04
+    needs: [Docker_Image]
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
       - working-directory: Kubernetes/
         name: Do some kube magic
         run: echo "${{ secrets.KUBECONFIG }}" | base64 -d > kubeconfig
