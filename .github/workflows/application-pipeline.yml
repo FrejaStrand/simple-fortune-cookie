@@ -95,3 +95,6 @@ jobs:
       - name: Take down cluster
         working-directory: Kubernetes/
         run: kubectl --kubeconfig kubeconfig delete -f .
+        
+      - name: done
+        run: echo "Everything done"
