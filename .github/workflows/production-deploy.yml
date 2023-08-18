@@ -11,8 +11,8 @@ jobs:
         - name: Checkout node
           uses: actions/checkout@v3
         - name: add kubeconfig
-          working-directory: Kubernetes/
+          working-directory: kubernetes/
           run: echo "${{ secrets.KUBECONFIG }}" | base64 -d > kubeconfig
         - name: Deploy cluster using kubectl
-          working-directory: Kubernetes/
+          working-directory: kubernetes/
           run: kubectl --kubeconfig kubeconfig apply -f .
