@@ -86,11 +86,11 @@ jobs:
         uses: actions/checkout@v3
       
       - name: Add KUBECONFIG 
-        working-directory: Kubernetes/
+        working-directory: kubernetes/
         run: echo "${{ secrets.KUBECONFIG_TEST }}" | base64 -d > kubeconfig
 
       - name: Deploy cluster using kubectl
-        working-directory: Kubernetes/
+        working-directory: kubernetes/
         run: kubectl --kubeconfig kubeconfig apply -f .
       
       - name: Run curl test
@@ -98,7 +98,7 @@ jobs:
         run: chmod +x ./website-test.sh && ./website-test.sh http://16.16.182.73:30000
       
       - name: Take down cluster
-        working-directory: Kubernetes/
+        working-directory: kubernetes/
         run: kubectl --kubeconfig kubeconfig delete -f .
         
       - name: done
