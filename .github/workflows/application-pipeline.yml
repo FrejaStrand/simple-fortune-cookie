@@ -1,0 +1,97 @@
+name: PR Requirement tests
+
+on:
+  pull_request:
+    branches: [main]
+env:
+  docker_username: frejastrand
+  docker_password: ${{ secrets.GITHUB_TOKEN }}
+  GIT_COMMIT: ${{ github.sha }}
+jobs:
+  unit-test:
+    name: Unit tests
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+
+      - name: Update packages
+        run: sudo apt update
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.15'
+
+      - name: Install GCC
+        run: sudo apt install -y gcc
+
+      - name: Run test finally
+        working-directory: frontend
+        run: go test
+
+  store-artifact:
+    name: Store artifact
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Upload code
+        uses: actions/upload-artifact@v3
+        with:
+          name: code
+          path: . 
+  
+  docker-upload-frontend: 
+    runs-on: ubuntu-22.04
+    needs: [store-artifact]
+    permissions:
+      packages: write
+    steps:
+      - name: download code
+        uses: actions/download-artifact@v3
+        with:
+          name: code
+          path: .
+      - name: build frontend docker
+        run: chmod +x ./build-frontend-docker.sh && ./build-frontend-docker.sh
+      - name: push frontend docker
+        run: chmod +x ./push-frontend-docker.sh && ./push-frontend-docker.sh
+  
+  docker-upload-backend: 
+    runs-on: ubuntu-22.04
+    needs: [store-artifact]
+    permissions:
+      packages: write
+    steps:
+      - name: download code
+        uses: actions/download-artifact@v3
+        with:
+          name: code
+          path: .
+      - name: build backend docker
+        run: chmod +x ./build-backend-docker.sh && ./build-backend-docker.sh
+      - name: push backend docker
+        run: chmod +x ./push-backend-docker.sh && ./push-backend-docker.sh
+
+  start-test-cluster:
+    runs-on: ubuntu-22.04
+    needs: [docker-upload-backend, docker-upload-frontend]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Add KUBECONFIG 
+        working-directory: Kubernetes/
+        run: echo "${{ secrets.KUBECONFIG_TEST }}" | base64 -d > kubeconfig
+
+      - name: Deploy cluster using kubectl
+        working-directory: Kubernetes/
+        run: kubectl --kubeconfig kubeconfig apply -f .
+      
+      - name: Run curl test
+        run: chmod +x ./website-test.sh && ./website-test.sh http://16.16.182.73:30000
+      
+      - name: Take down cluster
+        working-directory: Kubernetes/
+        run: kubectl --kubeconfig kubeconfig delete -f .
