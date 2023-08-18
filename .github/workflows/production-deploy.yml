@@ -1,0 +1,18 @@
+name: Production-deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+    start-k8s-cluster:
+      runs-on: ubuntu-22.04
+      steps:
+        - name: Checkout node
+          uses: actions/checkout@v3
+        - name: add kubeconfig
+          working-directory: Kubernetes/
+          run: echo "${{ secrects.KUBECONFIG }}" | base64 -d > kubeconfig
+        - name: Deploy cluster using kubectl
+          working-directory: Kubernetes/
+          run: kubectl --kubeconfig kubeconfig apply -f .
