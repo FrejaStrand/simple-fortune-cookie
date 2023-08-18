@@ -13,8 +13,15 @@ spec:
       labels:
         app: backend
     spec:
+      initContainers:
+      - name: wait-for-redis
+        image: busybox
+        command: ['sh', '-c', 'until nc -z database 6379; do sleep 1; done;']
       containers:
       - name: backend
         image: ghcr.io/frejastrand/backend-fortune-app:latest
         ports:
         - containerPort: 9000
+        env:
+            - name: REDIS_DNS 
+              value: 'database'
